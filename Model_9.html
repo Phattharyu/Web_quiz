@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lecture Quiz</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #111;
+      color: #fff;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    .quiz-box {
+      background-color: #222;
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+    .question {
+      font-size: 1.2em;
+      margin-bottom: 10px;
+    }
+    .options label {
+      display: block;
+      padding: 10px;
+      background-color: #333;
+      border-radius: 5px;
+      margin-bottom: 5px;
+      cursor: pointer;
+    }
+    .options input[type="radio"] {
+      display: none;
+    }
+    .options input[type="radio"]:checked + label {
+      background-color: #444;
+      border: 2px solid #00ccff;
+    }
+    #submitBtn, #retryBtn {
+      background-color: #00ccff;
+      border: none;
+      padding: 10px 20px;
+      color: #000;
+      font-weight: bold;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #summary {
+      display: none;
+      background-color: #222;
+      padding: 20px;
+      margin-top: 20px;
+      border-radius: 10px;
+    }
+    #summary h2 {
+      color: #00ccff;
+    }
+    .explanation {
+      margin-bottom: 15px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Lecture 9 Clustering Interactive Quiz</h1>
+  <div class="quiz-box" id="quiz"></div>
+  <button id="submitBtn">Submit</button>
+  <div id="summary"></div>
+  <button id="retryBtn" style="display:none;">Retry Quiz</button>
+
+  <script>
+   const questions = [
+  {
+    q: "What is the primary goal of clustering?",
+    options: ["Predict continuous values", "Classify into labeled categories", "Group similar data points without labels", "Reduce dataset size"],
+    answer: 2
+  },
+  {
+    q: "Which learning type does clustering fall under?",
+    options: ["Supervised", "Unsupervised", "Reinforcement", "Semi-supervised"],
+    answer: 1
+  },
+  {
+    q: "Which of the following is a key application of clustering?",
+    options: ["Image classification", "Sales prediction", "Customer segmentation", "Stock forecasting"],
+    answer: 2
+  },
+  {
+    q: "In clustering, data is grouped based on:",
+    options: ["Labels", "Random sampling", "Class probability", "Similarity"],
+    answer: 3
+  },
+  {
+    q: "Which distance metric is most commonly used in k-means?",
+    options: ["Jaccard Distance", "Manhattan Distance", "Euclidean Distance", "Cosine Distance"],
+    answer: 2
+  },
+  {
+    q: "What does a high intra-cluster similarity indicate?",
+    options: ["Points in the cluster are very different", "Clusters overlap", "Points in the same cluster are very similar", "Too many clusters"],
+    answer: 2
+  },
+  {
+    q: "What is a centroid in k-means clustering?",
+    options: ["A random data point", "A data point with minimum error", "The average position of all points in a cluster", "The outlier in the cluster"],
+    answer: 2
+  },
+  {
+    q: "Which of the following is a partitioning-based clustering algorithm?",
+    options: ["Agglomerative", "DBSCAN", "K-means", "PCA"],
+    answer: 2
+  },
+  {
+    q: "What does DBSCAN stand for?",
+    options: ["Density-Based Spatial Clustering of Applications with Noise", "Dynamic Binary Spatial Cluster Algorithm with Normalization", "Data-Based Search Clustering and Analysis", "Distance-Based Sampling and Clustering Network"],
+    answer: 0
+  },
+  {
+    q: "What are the three types of clustering approaches?",
+    options: ["Linear, Logistic, Radial", "Partitioning, Hierarchical, Density-based", "Regression, Classification, Clustering", "Flat, Nested, Adaptive"],
+    answer: 1
+  },
+  {
+    q: "What does k in k-means refer to?",
+    options: ["Number of features", "Number of iterations", "Number of clusters", "Number of outliers"],
+    answer: 2
+  },
+  {
+    q: "Which of the following determines a good clustering result?",
+    options: ["Low intra-cluster similarity", "High inter-cluster similarity", "High inter-cluster similarity, low intra-cluster similarity", "Equal number of points in each cluster"],
+    answer: 2
+  },
+
+  {
+    q: "How is a cluster defined in DBSCAN?",
+    options: ["Points within a fixed radius and minimum points", "Points with the same labels", "Points on a straight line", "Points with same centroid"],
+    answer: 0
+  },
+  {
+    q: "Which distance measure is useful for high-dimensional data?",
+    options: ["Cosine similarity", "Manhattan distance", "Euclidean distance", "Jaccard index"],
+    answer: 0
+  },
+  {
+    q: "Which clustering method forms a nested hierarchy of clusters?",
+    options: ["K-means", "DBSCAN", "Hierarchical clustering", "Spectral clustering"],
+    answer: 2
+  },
+  {
+    q: "Which approach does agglomerative clustering use?",
+    options: ["Split-based", "Merge-based", "Centroid-based", "Hybrid-based"],
+    answer: 1
+  },
+  {
+    q: "What does a proximity matrix contain?",
+    options: ["Class probabilities", "Centroid values", "Pairwise distances between data points", "Feature weights"],
+    answer: 2
+  },
+  {
+    q: "What does the Elbow Method help determine?",
+    options: ["Distance metric", "Number of iterations", "Optimal number of clusters", "Hierarchical depth"],
+    answer: 2
+  },
+  {
+    q: "Which metric is plotted in the Elbow Method?",
+    options: ["Accuracy", "F1 Score", "WCSS (Within Cluster Sum of Squares)", "Precision"],
+    answer: 2
+  },
+  {
+    q: "What is the silhouette score used for?",
+    options: ["Measure speed of training", "Evaluate classification performance", "Assess clustering quality", "Optimize regression coefficients"],
+    answer: 2
+  },
+  {
+    q: "A silhouette score close to 1 indicates:",
+    options: ["Poor clustering", "Overfitting", "Good clustering", "Data overlap"],
+    answer: 2
+  },
+  {
+    q: "What is WCSS in clustering?",
+    options: ["Weighted Cross Sample Similarity", "Within-Cluster Sum of Squares", "Within-Class Sample Size", "Weighted Cluster Similarity Score"],
+    answer: 1
+  },
+  {
+    q: "Which clustering method works well with outliers?",
+    options: ["K-means", "Hierarchical", "DBSCAN", "Polynomial"],
+    answer: 2
+  },
+  {
+    q: "What does noise represent in DBSCAN?",
+    options: ["A centroid", "An outlier", "A label", "A subcluster"],
+    answer: 1
+  },
+  {
+    q: "What is a major limitation of k-means?",
+    options: ["It is slow", "It can't find centroids", "It requires the number of clusters as input", "It works only with categorical data"],
+    answer: 2
+  },
+  {
+    q: "What can be an issue when using Euclidean distance?",
+    options: ["Not defined for text", "Sensitive to scale", "Slow to compute", "Requires labels"],
+    answer: 1
+  },
+  {
+    q: "What is a dendrogram used in?",
+    options: ["K-means", "Hierarchical clustering", "DBSCAN", "PCA"],
+    answer: 1
+  },
+  {
+    q: "Which of the following algorithms handles non-convex shapes well?",
+    options: ["K-means", "Ridge Regression", "Lasso Regression", "DBSCAN"],
+    answer: 3
+  },
+  {
+    q: "Which of the following would make clustering results unreliable?",
+    options: ["Balanced data", "Proper distance function", "Irrelevant features", "Normalized data"],
+    answer: 2
+  },
+  {
+    q: "In clustering, what is a key challenge?",
+    options: ["Minimizing classification error", "Choosing optimal features", "Determining the number of clusters", "Tuning learning rate"],
+    answer: 2
+  }
+];
+
+
+
+
+    const explanations = [
+      "Used to increment the Program Counter (PC) by 4 to fetch the next instruction.",
+      "With 5 stages, ideally the processor can be 5 times faster.",
+      "Interstage buffers hold intermediate results between pipeline stages.",
+      "A stall occurs when one stage must wait for another to complete.",
+      "Pipeline stalls are caused by hazards (data, control, structural).",
+      "Data hazard happens when one instruction needs data from a previous instruction.",
+      "Operand forwarding helps pass data between instructions without waiting.",
+      "Branch instructions cause control hazards by altering flow.",
+      "In delayed branching, a useful instruction is placed after the branch.",
+      "Superscalar processors have multiple execution units to run instructions in parallel.",
+      "The MAR (Memory Address Register) connects to the address bus.",
+      "The MDR (Memory Data Register) interfaces with the data bus.",
+      "Memory reads address and data buses during a write operation.",
+      "Cache is a small fast memory between CPU and main memory.",
+      "Temporal locality means recently accessed instructions/data are likely reused.",
+      "ISR (Interrupt Service Routine) handles interrupt signals.",
+      "Operand forwarding is a solution, not a problem.",
+      "Branch prediction helps reduce pipeline stalls from branches.",
+      "Structural hazard arises when multiple instructions need the same hardware.",
+      "Instruction reordering can hide branch delays by reusing the delay slot."
+    ];
+
+    const quizDiv = document.getElementById("quiz");
+    const summaryDiv = document.getElementById("summary");
+
+       // Shuffle array utility
+       function shuffleArray(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+    }
+
+    // Shuffle questions and options
+    questions.forEach((q) => {
+    const originalOptions = [...q.options];
+    const correctAnswerText = originalOptions[q.answer];
+
+    const shuffledOptions = shuffleArray([...originalOptions]);
+    q.options = shuffledOptions;
+    q.answer = shuffledOptions.indexOf(correctAnswerText);
+    });
+
+    // Shuffle the questions array itself
+    shuffleArray(questions);
+
+    questions.forEach((q, index) => {
+      const questionBox = document.createElement("div");
+      questionBox.classList.add("question-block");
+      questionBox.innerHTML = `
+        <div class="question">${index + 1}. ${q.q}</div>
+        <div class="options">
+          ${q.options.map((opt, i) => `
+            <input type="radio" id="q${index}_${i}" name="q${index}" value="${i}">
+            <label for="q${index}_${i}">${opt}</label>
+          `).join('')}
+        </div>
+      `;
+      quizDiv.appendChild(questionBox);
+    });
+
+    document.getElementById("submitBtn").onclick = () => {
+      let score = 0;
+      let incorrectSummary = "<h2>Quiz Summary(IGNORE THE EXPLANATION)</h2>";
+      questions.forEach((q, index) => {
+        const selected = document.querySelector(`input[name='q${index}']:checked`);
+        const userAnswer = selected ? parseInt(selected.value) : null;
+        if (userAnswer === q.answer) {
+          score++;
+        } else {
+          incorrectSummary += `<div class='explanation'><strong>Question ${index + 1}:</strong><br>${q.q}<br><em>Your answer:</em> ${userAnswer !== null ? q.options[userAnswer] : "None"}<br><em>Correct answer:</em> ${q.options[q.answer]}<br><em>Explanation:</em> ${explanations[index]}</div>`;
+        }
+      });
+      quizDiv.style.display = "none";
+      document.getElementById("submitBtn").style.display = "none";
+      summaryDiv.style.display = "block";
+      summaryDiv.innerHTML = `<div><strong>Your Score: ${score} / ${questions.length}</strong></div>` + incorrectSummary;
+      document.getElementById("retryBtn").style.display = "inline-block";
+    };
+
+    document.getElementById("retryBtn").onclick = () => {
+      window.location.reload();
+    };
+  </script>
+</body>
+</html>

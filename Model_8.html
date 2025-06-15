@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lecture Quiz</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #111;
+      color: #fff;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    .quiz-box {
+      background-color: #222;
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+    .question {
+      font-size: 1.2em;
+      margin-bottom: 10px;
+    }
+    .options label {
+      display: block;
+      padding: 10px;
+      background-color: #333;
+      border-radius: 5px;
+      margin-bottom: 5px;
+      cursor: pointer;
+    }
+    .options input[type="radio"] {
+      display: none;
+    }
+    .options input[type="radio"]:checked + label {
+      background-color: #444;
+      border: 2px solid #00ccff;
+    }
+    #submitBtn, #retryBtn {
+      background-color: #00ccff;
+      border: none;
+      padding: 10px 20px;
+      color: #000;
+      font-weight: bold;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #summary {
+      display: none;
+      background-color: #222;
+      padding: 20px;
+      margin-top: 20px;
+      border-radius: 10px;
+    }
+    #summary h2 {
+      color: #00ccff;
+    }
+    .explanation {
+      margin-bottom: 15px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Lecture 8 Regression Interactive Quiz</h1>
+  <div class="quiz-box" id="quiz"></div>
+  <button id="submitBtn">Submit</button>
+  <div id="summary"></div>
+  <button id="retryBtn" style="display:none;">Retry Quiz</button>
+
+  <script>
+   const questions = [
+  {
+    q: "What is the main goal of regression in machine learning?",
+    options: ["Classify data into categories", "Predict a continuous outcome", "Group similar items", "Reduce dimensionality"],
+    answer: 1
+  },
+  {
+    q: "Which of the following is an example of a regression task?",
+    options: ["Predict if an email is spam", "Classify images into animals", "Forecast house prices", "Label objects in an image"],
+    answer: 2
+  },
+  {
+    q: "Which of these is the dependent variable in a regression model?",
+    options: ["x1, x2, x3", "ε", "y", "β0"],
+    answer: 2
+  },
+  {
+    q: "What does the intercept (β0) in a regression model represent?",
+    options: ["The slope", "The error", "The predicted variable", "The starting value of y when x = 0"],
+    answer: 3
+  },
+  {
+    q: "In multiple linear regression, what do the coefficients β1, β2,... represent?",
+    options: ["Intercepts", "Slopes for each feature", "Prediction errors", "Noise"],
+    answer: 1
+  },
+  {
+    q: "What is the error term (ε) used for in a regression model?",
+    options: ["Prediction", "Unexplained variance", "Coefficient", "Feature scaling"],
+    answer: 1
+  },
+  {
+    q: "What is SSE in regression?",
+    options: ["Standard Squared Entropy", "Sum of Signal Estimators", "Sum of Squared Error", "Standard Error Estimate"],
+    answer: 2
+  },
+  {
+    q: "What is the goal of minimizing SSE?",
+    options: ["Maximize y", "Reduce prediction errors", "Increase noise", "Reduce training time"],
+    answer: 1
+  },
+  {
+    q: "Which algorithm is commonly used to minimize loss in regression?",
+    options: ["Random Forest", "Decision Tree", "Gradient Descent", "KNN"],
+    answer: 2
+  },
+  {
+    q: "Which of the following is a key characteristic of polynomial regression?",
+    options: ["Linear relationship only", "Always uses degree 1", "Models nonlinear relationships", "Ignores residuals"],
+    answer: 2
+  },
+  {
+    q: "Why is polynomial regression prone to overfitting?",
+    options: ["Too few degrees", "Too many errors", "Too many polynomial terms", "No slope adjustments"],
+    answer: 2
+  },
+  {
+    q: "What does the degree in polynomial regression refer to?",
+    options: ["Number of observations", "Number of datasets", "Highest power of x", "Model complexity score"],
+    answer: 2
+  },
+  {
+    q: "Which regression type penalizes large coefficients using L2 regularization?",
+    options: ["Linear Regression", "Polynomial Regression", "Ridge Regression", "Decision Tree"],
+    answer: 2
+  },
+  {
+    q: "Which regularization method shrinks some coefficients to zero?",
+    options: ["Ridge", "Gradient", "Lasso", "Linear"],
+    answer: 2
+  },
+  {
+    q: "Which regression type is more interpretable when many features are irrelevant?",
+    options: ["Ridge", "Lasso", "Polynomial", "Multiple Linear"],
+    answer: 1
+  },
+  {
+    q: "What metric measures how well a regression model explains variation in the data?",
+    options: ["MAE", "R² (Coefficient of Determination)", "SSE", "MSE"],
+    answer: 1
+  },
+  {
+    q: "What does an R² value close to 1 indicate?",
+    options: ["Poor model", "Irrelevant features", "Good fit", "High overfitting"],
+    answer: 2
+  },
+  {
+    q: "Which error metric takes the square root of the average squared error?",
+    options: ["MAE", "R²", "SSE", "RMSE"],
+    answer: 3
+  },
+  {
+    q: "Which error metric is most affected by outliers?",
+    options: ["MAE", "RMSE", "R²", "MSE"],
+    answer: 3
+  },
+  {
+    q: "Which regression technique works by splitting data like a classification tree?",
+    options: ["Lasso", "Decision Tree Regression", "Ridge", "Polynomial"],
+    answer: 1
+  },
+  {
+    q: "In decision tree regression, which metric is commonly used for splitting?",
+    options: ["Gini index", "Entropy", "Mean Squared Error", "Information Gain"],
+    answer: 2
+  },
+  {
+    q: "What kind of data can regression handle?",
+    options: ["Categorical labels", "Numerical outcomes", "Image classes", "Cluster IDs"],
+    answer: 1
+  },
+  {
+    q: "Which regression method is best for multicollinearity?",
+    options: ["Lasso", "Ridge", "Linear", "Polynomial"],
+    answer: 1
+  },
+  {
+    q: "Which metric is used to evaluate how close predictions are to actual values?",
+    options: ["R²", "Entropy", "Gradient", "Classification accuracy"],
+    answer: 0
+  },
+  {
+    q: "What is the difference between actual and predicted values called?",
+    options: ["Coefficient", "Gradient", "Error", "Regularization"],
+    answer: 2
+  },
+  {
+    q: "Which of the following is NOT a regression evaluation metric?",
+    options: ["MSE", "RMSE", "MAE", "F1 Score"],
+    answer: 3
+  },
+  {
+    q: "What does minimizing RMSE help with?",
+    options: ["Reducing overfitting", "Improving classification", "Improving regression accuracy", "Removing outliers"],
+    answer: 2
+  },
+  {
+    q: "What kind of relationship is modeled by linear regression?",
+    options: ["Categorical", "Nonlinear", "Hierarchical", "Straight-line"],
+    answer: 3
+  },
+  {
+    q: "Which equation describes multiple linear regression?",
+    options: ["y = mx + c", "y = β0 + β1x1 + β2x2 + ... + βnxn + ε", "y = a + bx²", "y = Σx"],
+    answer: 1
+  },
+  {
+    q: "What does the table below represent in regression?",  
+    options: ["Confusion Matrix", "Training set", "Data records for regression", "Classification output"],
+    answer: 2
+  }
+];
+
+
+
+
+
+
+    const explanations = [
+      "Used to increment the Program Counter (PC) by 4 to fetch the next instruction.",
+      "With 5 stages, ideally the processor can be 5 times faster.",
+      "Interstage buffers hold intermediate results between pipeline stages.",
+      "A stall occurs when one stage must wait for another to complete.",
+      "Pipeline stalls are caused by hazards (data, control, structural).",
+      "Data hazard happens when one instruction needs data from a previous instruction.",
+      "Operand forwarding helps pass data between instructions without waiting.",
+      "Branch instructions cause control hazards by altering flow.",
+      "In delayed branching, a useful instruction is placed after the branch.",
+      "Superscalar processors have multiple execution units to run instructions in parallel.",
+      "The MAR (Memory Address Register) connects to the address bus.",
+      "The MDR (Memory Data Register) interfaces with the data bus.",
+      "Memory reads address and data buses during a write operation.",
+      "Cache is a small fast memory between CPU and main memory.",
+      "Temporal locality means recently accessed instructions/data are likely reused.",
+      "ISR (Interrupt Service Routine) handles interrupt signals.",
+      "Operand forwarding is a solution, not a problem.",
+      "Branch prediction helps reduce pipeline stalls from branches.",
+      "Structural hazard arises when multiple instructions need the same hardware.",
+      "Instruction reordering can hide branch delays by reusing the delay slot."
+    ];
+
+    const quizDiv = document.getElementById("quiz");
+    const summaryDiv = document.getElementById("summary");
+
+       // Shuffle array utility
+       function shuffleArray(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+    }
+
+    // Shuffle questions and options
+    questions.forEach((q) => {
+    const originalOptions = [...q.options];
+    const correctAnswerText = originalOptions[q.answer];
+
+    const shuffledOptions = shuffleArray([...originalOptions]);
+    q.options = shuffledOptions;
+    q.answer = shuffledOptions.indexOf(correctAnswerText);
+    });
+
+    // Shuffle the questions array itself
+    shuffleArray(questions);
+
+    questions.forEach((q, index) => {
+      const questionBox = document.createElement("div");
+      questionBox.classList.add("question-block");
+      questionBox.innerHTML = `
+        <div class="question">${index + 1}. ${q.q}</div>
+        <div class="options">
+          ${q.options.map((opt, i) => `
+            <input type="radio" id="q${index}_${i}" name="q${index}" value="${i}">
+            <label for="q${index}_${i}">${opt}</label>
+          `).join('')}
+        </div>
+      `;
+      quizDiv.appendChild(questionBox);
+    });
+
+    document.getElementById("submitBtn").onclick = () => {
+      let score = 0;
+      let incorrectSummary = "<h2>Quiz Summary(IGNORE THE EXPLANATION)</h2>";
+      questions.forEach((q, index) => {
+        const selected = document.querySelector(`input[name='q${index}']:checked`);
+        const userAnswer = selected ? parseInt(selected.value) : null;
+        if (userAnswer === q.answer) {
+          score++;
+        } else {
+          incorrectSummary += `<div class='explanation'><strong>Question ${index + 1}:</strong><br>${q.q}<br><em>Your answer:</em> ${userAnswer !== null ? q.options[userAnswer] : "None"}<br><em>Correct answer:</em> ${q.options[q.answer]}<br><em>Explanation:</em> ${explanations[index]}</div>`;
+        }
+      });
+      quizDiv.style.display = "none";
+      document.getElementById("submitBtn").style.display = "none";
+      summaryDiv.style.display = "block";
+      summaryDiv.innerHTML = `<div><strong>Your Score: ${score} / ${questions.length}</strong></div>` + incorrectSummary;
+      document.getElementById("retryBtn").style.display = "inline-block";
+    };
+
+    document.getElementById("retryBtn").onclick = () => {
+      window.location.reload();
+    };
+  </script>
+</body>
+</html>

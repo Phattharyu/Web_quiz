@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lecture Quiz</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #111;
+      color: #fff;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    .quiz-box {
+      background-color: #222;
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+    .question {
+      font-size: 1.2em;
+      margin-bottom: 10px;
+    }
+    .options label {
+      display: block;
+      padding: 10px;
+      background-color: #333;
+      border-radius: 5px;
+      margin-bottom: 5px;
+      cursor: pointer;
+    }
+    .options input[type="radio"] {
+      display: none;
+    }
+    .options input[type="radio"]:checked + label {
+      background-color: #444;
+      border: 2px solid #00ccff;
+    }
+    #submitBtn, #retryBtn {
+      background-color: #00ccff;
+      border: none;
+      padding: 10px 20px;
+      color: #000;
+      font-weight: bold;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #summary {
+      display: none;
+      background-color: #222;
+      padding: 20px;
+      margin-top: 20px;
+      border-radius: 10px;
+    }
+    #summary h2 {
+      color: #00ccff;
+    }
+    .explanation {
+      margin-bottom: 15px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Lecture 7 Parameter Tuning Interactive Quiz</h1>
+  <div class="quiz-box" id="quiz"></div>
+  <button id="submitBtn">Submit</button>
+  <div id="summary"></div>
+  <button id="retryBtn" style="display:none;">Retry Quiz</button>
+
+  <script>
+   const questions = [
+  {
+    q: "What is the purpose of model parameter tuning?",
+    options: ["To create a dataset", "To automate feature selection", "To optimize model performance", "To remove labels from data"],
+    answer: 2
+  },
+  {
+    q: "Which of the following is a learnable parameter?",
+    options: ["Learning rate", "Number of layers", "Weights in a neural network", "Batch size"],
+    answer: 2
+  },
+  {
+    q: "Which of the following is a hyperparameter?",
+    options: ["Weight values", "Slope of linear regression", "Intercept term", "Learning rate"],
+    answer: 3
+  },
+  {
+    q: "How are hyperparameters selected?",
+    options: ["Automatically through training", "Manually or through tuning", "Generated from data", "Extracted via PCA"],
+    answer: 1
+  },
+  {
+    q: "Which of these techniques is used for hyperparameter tuning?",
+    options: ["K-means", "Grid Search", "Decision Tree", "SVM"],
+    answer: 1
+  },
+  {
+    q: "What does overfitting refer to?",
+    options: ["Model performs well on training but poorly on unseen data", "Model has low training accuracy", "Model cannot learn any pattern", "Model achieves perfect generalization"],
+    answer: 0
+  },
+  {
+    q: "Which method splits data into several parts to evaluate performance?",
+    options: ["Bootstrapping", "Cross-Validation", "Random Sampling", "Batch Normalization"],
+    answer: 1
+  },
+  {
+    q: "What does k-fold cross-validation do?",
+    options: ["Splits data randomly each time", "Tests only on unseen data", "Splits data into k parts and rotates test set", "Always uses the same test set"],
+    answer: 2
+  },
+  {
+    q: "What is the main risk of not tuning hyperparameters?",
+    options: ["Overfitting or underfitting", "Redundant features", "Inconsistent classes", "Missing data"],
+    answer: 0
+  },
+  {
+    q: "What causes underfitting?",
+    options: ["Too complex model", "Too few features", "Too simple model", "Using test data during training"],
+    answer: 2
+  },
+  {
+    q: "Which of the following is a method to prevent overfitting?",
+    options: ["Reduce dataset size", "Use more hyperparameters", "Cross-validation", "Use training data only"],
+    answer: 2
+  },
+  {
+    q: "Which metric is optimized during training?",
+    options: ["Accuracy", "Loss function", "Precision", "Recall"],
+    answer: 1
+  },
+  {
+    q: "Which set is used for tuning hyperparameters?",
+    options: ["Training set", "Test set", "Validation set", "Cross-validation set"],
+    answer: 2
+  },
+  {
+    q: "What type of search explores all possible hyperparameter combinations?",
+    options: ["Manual search", "Grid Search", "Random Search", "Adaptive Search"],
+    answer: 1
+  },
+  {
+    q: "What does random search do differently from grid search?",
+    options: ["Tests the same points multiple times", "Searches a subset of possible combinations", "Ignores hyperparameters", "Uses training set multiple times"],
+    answer: 1
+  },
+  {
+    q: "Which parameter tuning method is inefficient and time-consuming?",
+    options: ["Bayesian Optimization", "Manual tuning", "Grid Search", "Cross-validation"],
+    answer: 1
+  },
+  {
+    q: "Which Python library can be used for automated hyperparameter tuning?",
+    options: ["NumPy", "Matplotlib", "Optuna", "Pandas"],
+    answer: 2
+  },
+  {
+    q: "In decision trees, which is a hyperparameter?",
+    options: ["Information gain", "Max depth", "Leaf entropy", "Predicted label"],
+    answer: 1
+  },
+  {
+    q: "What happens when a model generalizes well?",
+    options: ["It memorizes training data", "It performs well on test data", "It fails on unseen data", "It uses fewer features"],
+    answer: 1
+  },
+  {
+    q: "What is an effect of using too much regularization?",
+    options: ["Overfitting", "Underfitting", "High accuracy", "Better training error"],
+    answer: 1
+  },
+  {
+    q: "Which technique helps reduce model complexity?",
+    options: ["Deep learning", "Gradient descent", "Pruning", "Ensemble learning"],
+    answer: 2
+  },
+  {
+    q: "Which cross-validation type is best for imbalanced data?",
+    options: ["Standard k-fold", "Random split", "Leave-one-out", "Stratified k-fold"],
+    answer: 3
+  },
+  {
+    q: "Which problem leads to low accuracy on both train and test sets?",
+    options: ["Overfitting", "Underfitting", "Regularization", "Cross-validation"],
+    answer: 1
+  },
+  {
+    q: "What does 'min_samples_split' control in decision trees?",
+    options: ["Number of features", "Leaf node threshold", "Split size threshold", "Tree depth"],
+    answer: 2
+  },
+  {
+    q: "What is the purpose of a validation set?",
+    options: ["Train the model", "Test model accuracy", "Tune hyperparameters", "Store unseen data"],
+    answer: 2
+  },
+  {
+    q: "What does 'max_features' hyperparameter affect in a decision tree?",
+    options: ["Size of training set", "Number of output classes", "Feature selection for splits", "Tree pruning method"],
+    answer: 2
+  },
+  {
+    q: "Why is learning rate important in neural networks?",
+    options: ["Prevents pruning", "Controls convergence speed", "Limits epochs", "Reduces dataset size"],
+    answer: 1
+  },
+  {
+    q: "What does dropout do in neural networks?",
+    options: ["Increases accuracy", "Removes neurons randomly", "Adds noise", "Splits features"],
+    answer: 1
+  },
+  {
+    q: "Which tuning method evaluates many models in parallel by random sampling?",
+    options: ["Grid Search", "Gradient Descent", "Random Search", "Bayesian Search"],
+    answer: 2
+  },
+  {
+    q: "Which problem does tuning aim to avoid besides overfitting?",
+    options: ["Classification error", "Confusion matrix", "Underfitting", "Noise imbalance"],
+    answer: 2
+  }
+];
+
+
+
+
+
+    const explanations = [
+      "Used to increment the Program Counter (PC) by 4 to fetch the next instruction.",
+      "With 5 stages, ideally the processor can be 5 times faster.",
+      "Interstage buffers hold intermediate results between pipeline stages.",
+      "A stall occurs when one stage must wait for another to complete.",
+      "Pipeline stalls are caused by hazards (data, control, structural).",
+      "Data hazard happens when one instruction needs data from a previous instruction.",
+      "Operand forwarding helps pass data between instructions without waiting.",
+      "Branch instructions cause control hazards by altering flow.",
+      "In delayed branching, a useful instruction is placed after the branch.",
+      "Superscalar processors have multiple execution units to run instructions in parallel.",
+      "The MAR (Memory Address Register) connects to the address bus.",
+      "The MDR (Memory Data Register) interfaces with the data bus.",
+      "Memory reads address and data buses during a write operation.",
+      "Cache is a small fast memory between CPU and main memory.",
+      "Temporal locality means recently accessed instructions/data are likely reused.",
+      "ISR (Interrupt Service Routine) handles interrupt signals.",
+      "Operand forwarding is a solution, not a problem.",
+      "Branch prediction helps reduce pipeline stalls from branches.",
+      "Structural hazard arises when multiple instructions need the same hardware.",
+      "Instruction reordering can hide branch delays by reusing the delay slot."
+    ];
+
+    const quizDiv = document.getElementById("quiz");
+    const summaryDiv = document.getElementById("summary");
+
+       // Shuffle array utility
+       function shuffleArray(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+    }
+
+    // Shuffle questions and options
+    questions.forEach((q) => {
+    const originalOptions = [...q.options];
+    const correctAnswerText = originalOptions[q.answer];
+
+    const shuffledOptions = shuffleArray([...originalOptions]);
+    q.options = shuffledOptions;
+    q.answer = shuffledOptions.indexOf(correctAnswerText);
+    });
+
+    // Shuffle the questions array itself
+    shuffleArray(questions);
+
+    questions.forEach((q, index) => {
+      const questionBox = document.createElement("div");
+      questionBox.classList.add("question-block");
+      questionBox.innerHTML = `
+        <div class="question">${index + 1}. ${q.q}</div>
+        <div class="options">
+          ${q.options.map((opt, i) => `
+            <input type="radio" id="q${index}_${i}" name="q${index}" value="${i}">
+            <label for="q${index}_${i}">${opt}</label>
+          `).join('')}
+        </div>
+      `;
+      quizDiv.appendChild(questionBox);
+    });
+
+    document.getElementById("submitBtn").onclick = () => {
+      let score = 0;
+      let incorrectSummary = "<h2>Quiz Summary(IGNORE THE EXPLANATION)</h2>";
+      questions.forEach((q, index) => {
+        const selected = document.querySelector(`input[name='q${index}']:checked`);
+        const userAnswer = selected ? parseInt(selected.value) : null;
+        if (userAnswer === q.answer) {
+          score++;
+        } else {
+          incorrectSummary += `<div class='explanation'><strong>Question ${index + 1}:</strong><br>${q.q}<br><em>Your answer:</em> ${userAnswer !== null ? q.options[userAnswer] : "None"}<br><em>Correct answer:</em> ${q.options[q.answer]}<br><em>Explanation:</em> ${explanations[index]}</div>`;
+        }
+      });
+      quizDiv.style.display = "none";
+      document.getElementById("submitBtn").style.display = "none";
+      summaryDiv.style.display = "block";
+      summaryDiv.innerHTML = `<div><strong>Your Score: ${score} / ${questions.length}</strong></div>` + incorrectSummary;
+      document.getElementById("retryBtn").style.display = "inline-block";
+    };
+
+    document.getElementById("retryBtn").onclick = () => {
+      window.location.reload();
+    };
+  </script>
+</body>
+</html>

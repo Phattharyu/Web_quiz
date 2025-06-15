@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lecture Quiz</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #111;
+      color: #fff;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    .quiz-box {
+      background-color: #222;
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+    .question {
+      font-size: 1.2em;
+      margin-bottom: 10px;
+    }
+    .options label {
+      display: block;
+      padding: 10px;
+      background-color: #333;
+      border-radius: 5px;
+      margin-bottom: 5px;
+      cursor: pointer;
+    }
+    .options input[type="radio"] {
+      display: none;
+    }
+    .options input[type="radio"]:checked + label {
+      background-color: #444;
+      border: 2px solid #00ccff;
+    }
+    #submitBtn, #retryBtn {
+      background-color: #00ccff;
+      border: none;
+      padding: 10px 20px;
+      color: #000;
+      font-weight: bold;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #summary {
+      display: none;
+      background-color: #222;
+      padding: 20px;
+      margin-top: 20px;
+      border-radius: 10px;
+    }
+    #summary h2 {
+      color: #00ccff;
+    }
+    .explanation {
+      margin-bottom: 15px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Lecture 6 Classification Interactive Quiz</h1>
+  <div class="quiz-box" id="quiz"></div>
+  <button id="submitBtn">Submit</button>
+  <div id="summary"></div>
+  <button id="retryBtn" style="display:none;">Retry Quiz</button>
+
+  <script>
+   const questions = [
+
+  {
+    q: "Which of the following is a common classification algorithm?",
+    options: ["K-means", "Linear Regression", "Decision Tree", "PCA"],
+    answer: 2
+  },
+  {
+    q: "In a decision tree, what does an internal node represent?",
+    options: ["Prediction output", "Feature used for splitting", "Final class label", "Root of the tree"],
+    answer: 1
+  },
+  {
+    q: "What is the purpose of entropy in a decision tree?",
+    options: ["Count samples", "Measure impurity", "Calculate accuracy", "Sort classes"],
+    answer: 1
+  },
+  {
+    q: "Which metric is used to evaluate how informative an attribute is in a decision tree?",
+    options: ["Gini Score", "Information Gain", "Accuracy", "Confusion Index"],
+    answer: 1
+  },
+  {
+    q: "Which part of a decision tree represents the final classification?",
+    options: ["Leaf node", "Internal node", "Branch", "Root node"],
+    answer: 0
+  },
+  {
+    q: "What does supervised learning require?",
+    options: ["Unlabeled data", "Reinforcement signals", "Labeled input-output pairs", "Hierarchical structure"],
+    answer: 2
+  },
+  {
+    q: "Which is NOT a supervised learning algorithm?",
+    options: ["Logistic Regression", "KNN", "Decision Tree", "K-means"],
+    answer: 3
+  },
+  {
+    q: "Which of the following best describes a model?",
+    options: ["An equation that sorts data", "A function mapping input to output", "An unordered dataset", "A clustering label"],
+    answer: 1
+  },
+  {
+    q: "Which of these is a valid classification task?",
+    options: ["Predict house price", "Identify tumor type", "Estimate rainfall amount", "Determine product shelf life"],
+    answer: 1
+  },
+  {
+    q: "What is the goal of feature extraction in classification?",
+    options: ["Reduce the dataset size", "Improve model readability", "Select features that contribute most to prediction", "Create more features"],
+    answer: 2
+  },
+  {
+    q: "What happens during the model training phase?",
+    options: ["Model parameters are manually set", "Test data is used to validate performance", "Model learns from training data", "Predictions are generated for unseen data"],
+    answer: 2
+  },
+  {
+    q: "What metric is used to evaluate classification performance?",
+    options: ["WCSS", "MSE", "F1-score", "SSE"],
+    answer: 2
+  },
+  {
+    q: "Which describes the validation set?",
+    options: ["Used for final evaluation", "Used for training", "Used for hyperparameter tuning", "Contains duplicate data"],
+    answer: 2
+  },
+  {
+    q: "What is generalization in machine learning?",
+    options: ["Fitting the training data perfectly", "Model's ability to perform well on new data", "Minimizing SSE", "Choosing optimal hyperparameters"],
+    answer: 1
+  },
+  {
+    q: "Which issue occurs when a model fits the training data too well?",
+    options: ["Underfitting", "Generalization", "Overfitting", "Validation Loss"],
+    answer: 2
+  },
+  {
+    q: "Which issue occurs when a model is too simple?",
+    options: ["Underfitting", "Overfitting", "Noise", "Regularization"],
+    answer: 0
+  },
+  {
+    q: "What kind of values does classification predict?",
+    options: ["Continuous values", "Probabilistic outcomes", "Predefined categories", "Real numbers"],
+    answer: 2
+  },
+  {
+    q: "What does a confusion matrix display?",
+    options: ["Data distribution", "Training loss", "Model parameters", "Prediction outcomes across categories"],
+    answer: 3
+  },
+  {
+    q: "What technique can help prevent overfitting?",
+    options: ["Adding more features", "Cross-validation", "Using test data during training", "Reducing sample size"],
+    answer: 1
+  },
+  {
+    q: "Which one is NOT a component of a good classification model?",
+    options: ["High generalization", "Explainability", "Slow prediction speed", "Accuracy on unseen data"],
+    answer: 2
+  },
+  {
+    q: "Which of the following is a classification use case?",
+    options: ["Stock price prediction", "House value prediction", "Image object detection", "Sales forecasting"],
+    answer: 2
+  },
+  {
+    q: "What is the main use of hyperparameters?",
+    options: ["Adjust model internals during training", "Set model structure before training", "Automatically learned from data", "Set after model is deployed"],
+    answer: 1
+  },
+  {
+    q: "Which phase involves applying the model to unseen data?",
+    options: ["Evaluation", "Validation", "Prediction", "Tuning"],
+    answer: 2
+  },
+  {
+    q: "What is the goal of classification?",
+    options: ["Minimize squared error", "Group unlabeled data", "Assign input to a category", "Reduce input dimensions"],
+    answer: 2
+  },
+  {
+    q: "Which algorithm builds boundaries using neighbors' proximity?",
+    options: ["Logistic Regression", "K-Nearest Neighbors", "Decision Tree", "Ridge Regression"],
+    answer: 1
+  },
+  {
+    q: "Which algorithm fits a logistic function to data?",
+    options: ["Logistic Regression", "Random Forest", "PCA", "Lasso"],
+    answer: 0
+  },
+  {
+    q: "Which of the following is an advantage of decision trees?",
+    options: ["Complex interpretation", "Poor performance on categorical data", "Easy to visualize", "Cannot handle missing data"],
+    answer: 2
+  },
+  {
+    q: "Which is NOT a step in the classification process?",
+    options: ["Feature Extraction", "Data Splitting", "Unsupervised Clustering", "Model Evaluation"],
+    answer: 2
+  },
+  {
+    q: "Which dataset is used to evaluate generalization?",
+    options: ["Training set", "Validation set", "Feature set", "Test set"],
+    answer: 3
+  }
+];
+
+
+
+
+    const explanations = [
+      "Used to increment the Program Counter (PC) by 4 to fetch the next instruction.",
+      "With 5 stages, ideally the processor can be 5 times faster.",
+      "Interstage buffers hold intermediate results between pipeline stages.",
+      "A stall occurs when one stage must wait for another to complete.",
+      "Pipeline stalls are caused by hazards (data, control, structural).",
+      "Data hazard happens when one instruction needs data from a previous instruction.",
+      "Operand forwarding helps pass data between instructions without waiting.",
+      "Branch instructions cause control hazards by altering flow.",
+      "In delayed branching, a useful instruction is placed after the branch.",
+      "Superscalar processors have multiple execution units to run instructions in parallel.",
+      "The MAR (Memory Address Register) connects to the address bus.",
+      "The MDR (Memory Data Register) interfaces with the data bus.",
+      "Memory reads address and data buses during a write operation.",
+      "Cache is a small fast memory between CPU and main memory.",
+      "Temporal locality means recently accessed instructions/data are likely reused.",
+      "ISR (Interrupt Service Routine) handles interrupt signals.",
+      "Operand forwarding is a solution, not a problem.",
+      "Branch prediction helps reduce pipeline stalls from branches.",
+      "Structural hazard arises when multiple instructions need the same hardware.",
+      "Instruction reordering can hide branch delays by reusing the delay slot."
+    ];
+
+    const quizDiv = document.getElementById("quiz");
+    const summaryDiv = document.getElementById("summary");
+
+       // Shuffle array utility
+       function shuffleArray(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+    }
+
+    // Shuffle questions and options
+    questions.forEach((q) => {
+    const originalOptions = [...q.options];
+    const correctAnswerText = originalOptions[q.answer];
+
+    const shuffledOptions = shuffleArray([...originalOptions]);
+    q.options = shuffledOptions;
+    q.answer = shuffledOptions.indexOf(correctAnswerText);
+    });
+
+    // Shuffle the questions array itself
+    shuffleArray(questions);
+
+    questions.forEach((q, index) => {
+      const questionBox = document.createElement("div");
+      questionBox.classList.add("question-block");
+      questionBox.innerHTML = `
+        <div class="question">${index + 1}. ${q.q}</div>
+        <div class="options">
+          ${q.options.map((opt, i) => `
+            <input type="radio" id="q${index}_${i}" name="q${index}" value="${i}">
+            <label for="q${index}_${i}">${opt}</label>
+          `).join('')}
+        </div>
+      `;
+      quizDiv.appendChild(questionBox);
+    });
+
+    document.getElementById("submitBtn").onclick = () => {
+      let score = 0;
+      let incorrectSummary = "<h2>Quiz Summary(IGNORE THE EXPLANATION)</h2>";
+      questions.forEach((q, index) => {
+        const selected = document.querySelector(`input[name='q${index}']:checked`);
+        const userAnswer = selected ? parseInt(selected.value) : null;
+        if (userAnswer === q.answer) {
+          score++;
+        } else {
+          incorrectSummary += `<div class='explanation'><strong>Question ${index + 1}:</strong><br>${q.q}<br><em>Your answer:</em> ${userAnswer !== null ? q.options[userAnswer] : "None"}<br><em>Correct answer:</em> ${q.options[q.answer]}<br><em>Explanation:</em> ${explanations[index]}</div>`;
+        }
+      });
+      quizDiv.style.display = "none";
+      document.getElementById("submitBtn").style.display = "none";
+      summaryDiv.style.display = "block";
+      summaryDiv.innerHTML = `<div><strong>Your Score: ${score} / ${questions.length}</strong></div>` + incorrectSummary;
+      document.getElementById("retryBtn").style.display = "inline-block";
+    };
+
+    document.getElementById("retryBtn").onclick = () => {
+      window.location.reload();
+    };
+  </script>
+</body>
+</html>
