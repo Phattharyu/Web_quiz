@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lecture Quiz</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #111;
+      color: #fff;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    .quiz-box {
+      background-color: #222;
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+    .question {
+      font-size: 1.2em;
+      margin-bottom: 10px;
+    }
+    .options label {
+      display: block;
+      padding: 10px;
+      background-color: #333;
+      border-radius: 5px;
+      margin-bottom: 5px;
+      cursor: pointer;
+    }
+    .options input[type="radio"] {
+      display: none;
+    }
+    .options input[type="radio"]:checked + label {
+      background-color: #444;
+      border: 2px solid #00ccff;
+    }
+    #submitBtn, #retryBtn {
+      background-color: #00ccff;
+      border: none;
+      padding: 10px 20px;
+      color: #000;
+      font-weight: bold;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #summary {
+      display: none;
+      background-color: #222;
+      padding: 20px;
+      margin-top: 20px;
+      border-radius: 10px;
+    }
+    #summary h2 {
+      color: #00ccff;
+    }
+    .explanation {
+      margin-bottom: 15px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Lecture 10 Interactive Quiz</h1>
+  <div class="quiz-box" id="quiz"></div>
+  <button id="submitBtn">Submit</button>
+  <div id="summary"></div>
+  <button id="retryBtn" style="display:none;">Retry Quiz</button>
+
+  <script>
+    const questions = [
+  {
+    q: "How programs tend to access the same set of memory locations repeatedly",
+    options: ["Cache Miss", "Locality of Reference", "Mapping Function", "Write Back Protocol"],
+    answer: 1
+  },
+  {
+    q: "Recently executed instruction is likely to be executed again soon",
+    options: ["Temporal", "Cache Hit", "Spatial", "Valid Bit"],
+    answer: 0
+  },
+  {
+    q: "Instructions in close proximity to a recently executed instruction are also likely to be executed soon",
+    options: ["Spatial", "Dirty Bit", "Miss Penalty", "Memory Interleaving"],
+    answer: 0
+  },
+  {
+    q: "The read or write operation is performed on the appropriate cache location",
+    options: ["Cache Hit", "Cache Miss", "Write Through Protocol", "Fully-Associative"],
+    answer: 0
+  },
+  {
+    q: "Cache location and the memory location are updated simultaneously",
+    options: ["Write Back Protocol", "Load-Through Protocol", "Write Through Protocol", "Replacement Algorithms"],
+    answer: 2
+  },
+  {
+    q: "Main memory data will be updated after the cache done updating",
+    options: ["Write Back Protocol", "Write Through Protocol", "Tag", "Cache Hit"],
+    answer: 0
+  },
+  {
+    q: "Flag marked as updating data in cache",
+    options: ["The Dirty / Modified Bit", "Tag", "Address Buffer Register", "Valid Bit"],
+    answer: 0
+  },
+  {
+    q: "Addressed word in an operation is not in the cache",
+    options: ["Cache Hit", "Memory Interleaving", "Cache Miss", "Mapping Function"],
+    answer: 2
+  },
+  {
+    q: "Send a miss data in cache directly to the processor",
+    options: ["Fully-Associative", "Load-Through Protocol", "Block", "DBR"],
+    answer: 1
+  },
+  {
+    q: "Set of contiguous address",
+    options: ["Tag", "Block", "Temporal", "Associative Mapping"],
+    answer: 1
+  },
+  {
+    q: "Methods for specifying where memory blocks are placed in the cache",
+    options: ["Mapping Function", "Replacement Algorithms", "Block", "Cache Hit"],
+    answer: 0
+  },
+  {
+    q: "Identify which block from a memory is currently in a cache",
+    options: ["DBR", "Tag", "Block", "Spatial"],
+    answer: 1
+  },
+  {
+    q: "Memory address in Direct Mapping",
+    options: ["Valid Bit", "Tag / Block / Word", "Tag / Set / Word", "Tag / Word"],
+    answer: 1
+  },
+  {
+    q: "Direct Mapping",
+    options: ["Block j modulo number of block", "Mapping Function", "Memory Interleaving", "Associative Mapping"],
+    answer: 0
+  },
+  {
+    q: "Memory address in Associative Mapping",
+    options: ["Block / Word", "Tag / Set / Word", "Tag / Word", "Tag / Block / Word"],
+    answer: 2
+  },
+  {
+    q: "Associative Mapping",
+    options: ["Mapped into any cache block position", "Mapped into the same set", "Mapped only to direct line", "Block j modulo number of block"],
+    answer: 0
+  },
+  {
+    q: "Memory address in Set-Associative Mapping",
+    options: ["Tag / Block / Word", "Tag / Set / Word", "Tag / Word", "Valid Bit / Block / Word"],
+    answer: 1
+  },
+  {
+    q: "Set-Associative Mapping",
+    options: ["Block j modulo number of block", "Block j modulo number of set", "Block i equals cache index", "Block j divided by associativity"],
+    answer: 1
+  },
+  {
+    q: "One block per set in the Set-Associative Mapping",
+    options: ["Fully-Associative / Direct Mapping", "Write Through Protocol", "Tag / Set / Word", "Replacement Algorithm"],
+    answer: 0
+  },
+  {
+    q: "Control bit in a cache",
+    options: ["Valid Bit", "Mapping Function", "Temporal", "DBR"],
+    answer: 0
+  },
+  {
+    q: "Cache controller must decide which one of the old blocks is to be overwritten when a cache is full",
+    options: ["Replacement Algorithms", "Cache Miss", "Temporal", "ABR"],
+    answer: 0
+  },
+  {
+    q: "Three methods to remove block in cache",
+    options: ["Random Selection / Cache Write / Dirty Bit", "Tag / Block / Word", "LRU / Remove The Oldest Block / Random Selection", "Address Mapping / Cache Set / Replacement Bit"],
+    answer: 2
+  },
+  {
+    q: "LRU",
+    options: ["Latest Recently Updated", "Least Recently Used", "Last Record Unit", "Load Resource Utility"],
+    answer: 1
+  },
+  {
+    q: "Success rate in accessing the information",
+    options: ["Miss Penalty", "Cache Miss", "Hit Rate", "Refresh Rate"],
+    answer: 2
+  },
+  {
+    q: "The time used to transfer data from a slower memory to a faster memory",
+    options: ["Transfer Time", "Latency Overhead", "Miss Penalty", "Access Width"],
+    answer: 2
+  },
+  {
+    q: "Main memory separates physically in modules",
+    options: ["Memory Interleaving", "Module Spacing", "Parallel Memory", "Block Separation"],
+    answer: 0
+  },
+  {
+    q: "ABR",
+    options: ["Access Block Router", "Address Buffer Register", "Associative Block Register", "Asynchronous Bus Register"],
+    answer: 1
+  },
+  {
+    q: "DBR",
+    options: ["Data Buffer Register", "Direct Bus Router", "Dynamic Bit Range", "Data Bus Register"],
+    answer: 0
+  },
+  {
+    q: "Consecutive words in a module",
+    options: ["Several modules can be accessed", "Only one module can be accessed", "All modules accessed at once", "Modules accessed in pairs"],
+    answer: 1
+  },
+  {
+    q: "Consecutive words in consecutive module",
+    options: ["Sequential Bus Mode", "Only one module can be accessed", "Several modules can be accessed", "Burst Mode Transfer"],
+    answer: 2
+  }
+];
+
+    const explanations = [
+      "Used to increment the Program Counter (PC) by 4 to fetch the next instruction.",
+      "With 5 stages, ideally the processor can be 5 times faster.",
+      "Interstage buffers hold intermediate results between pipeline stages.",
+      "A stall occurs when one stage must wait for another to complete.",
+      "Pipeline stalls are caused by hazards (data, control, structural).",
+      "Data hazard happens when one instruction needs data from a previous instruction.",
+      "Operand forwarding helps pass data between instructions without waiting.",
+      "Branch instructions cause control hazards by altering flow.",
+      "In delayed branching, a useful instruction is placed after the branch.",
+      "Superscalar processors have multiple execution units to run instructions in parallel.",
+      "The MAR (Memory Address Register) connects to the address bus.",
+      "The MDR (Memory Data Register) interfaces with the data bus.",
+      "Memory reads address and data buses during a write operation.",
+      "Cache is a small fast memory between CPU and main memory.",
+      "Temporal locality means recently accessed instructions/data are likely reused.",
+      "ISR (Interrupt Service Routine) handles interrupt signals.",
+      "Operand forwarding is a solution, not a problem.",
+      "Branch prediction helps reduce pipeline stalls from branches.",
+      "Structural hazard arises when multiple instructions need the same hardware.",
+      "Instruction reordering can hide branch delays by reusing the delay slot."
+    ];
+
+    const quizDiv = document.getElementById("quiz");
+    const summaryDiv = document.getElementById("summary");
+
+   // Shuffle array utility
+   function shuffleArray(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+    }
+
+    // Shuffle questions and options
+    questions.forEach((q) => {
+    const originalOptions = [...q.options];
+    const correctAnswerText = originalOptions[q.answer];
+
+    const shuffledOptions = shuffleArray([...originalOptions]);
+    q.options = shuffledOptions;
+    q.answer = shuffledOptions.indexOf(correctAnswerText);
+    });
+
+    // Shuffle the questions array itself
+    shuffleArray(questions);
+
+    questions.forEach((q, index) => {
+      const questionBox = document.createElement("div");
+      questionBox.classList.add("question-block");
+      questionBox.innerHTML = `
+        <div class="question">${index + 1}. ${q.q}</div>
+        <div class="options">
+          ${q.options.map((opt, i) => `
+            <input type="radio" id="q${index}_${i}" name="q${index}" value="${i}">
+            <label for="q${index}_${i}">${opt}</label>
+          `).join('')}
+        </div>
+      `;
+      quizDiv.appendChild(questionBox);
+    });
+
+    document.getElementById("submitBtn").onclick = () => {
+      let score = 0;
+      let incorrectSummary = "<h2>Quiz Summary(IGNORE THE EXPLANATION)</h2>";
+      questions.forEach((q, index) => {
+        const selected = document.querySelector(`input[name='q${index}']:checked`);
+        const userAnswer = selected ? parseInt(selected.value) : null;
+        if (userAnswer === q.answer) {
+          score++;
+        } else {
+          incorrectSummary += `<div class='explanation'><strong>Question ${index + 1}:</strong><br>${q.q}<br><em>Your answer:</em> ${userAnswer !== null ? q.options[userAnswer] : "None"}<br><em>Correct answer:</em> ${q.options[q.answer]}<br><em>Explanation:</em> ${explanations[index]}</div>`;
+        }
+      });
+      quizDiv.style.display = "none";
+      document.getElementById("submitBtn").style.display = "none";
+      summaryDiv.style.display = "block";
+      summaryDiv.innerHTML = `<div><strong>Your Score: ${score} / ${questions.length}</strong></div>` + incorrectSummary;
+      document.getElementById("retryBtn").style.display = "inline-block";
+    };
+
+    document.getElementById("retryBtn").onclick = () => {
+      window.location.reload();
+    };
+  </script>
+</body>
+</html>

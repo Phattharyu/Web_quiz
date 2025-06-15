@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lecture Quiz</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #111;
+      color: #fff;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    .quiz-box {
+      background-color: #222;
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+    .question {
+      font-size: 1.2em;
+      margin-bottom: 10px;
+    }
+    .options label {
+      display: block;
+      padding: 10px;
+      background-color: #333;
+      border-radius: 5px;
+      margin-bottom: 5px;
+      cursor: pointer;
+    }
+    .options input[type="radio"] {
+      display: none;
+    }
+    .options input[type="radio"]:checked + label {
+      background-color: #444;
+      border: 2px solid #00ccff;
+    }
+    #submitBtn, #retryBtn {
+      background-color: #00ccff;
+      border: none;
+      padding: 10px 20px;
+      color: #000;
+      font-weight: bold;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #summary {
+      display: none;
+      background-color: #222;
+      padding: 20px;
+      margin-top: 20px;
+      border-radius: 10px;
+    }
+    #summary h2 {
+      color: #00ccff;
+    }
+    .explanation {
+      margin-bottom: 15px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Lecture 5–8 Interactive Quiz</h1>
+  <div class="quiz-box" id="quiz"></div>
+  <button id="submitBtn">Submit</button>
+  <div id="summary"></div>
+  <button id="retryBtn" style="display:none;">Retry Quiz</button>
+
+  <script>
+    const questions = [
+      {
+        q: "In the bus architecture, what is the 'constant-4 input to ALU' used for?",
+        options: ["Loop control", "Increasing PC for the next instruction", "Instruction fetch", "Data forwarding"],
+        answer: 1
+      },
+      {
+        q: "For a pipeline with stages F, D, E, M, and W, how much faster could the processor possibly be?",
+        options: ["2 times", "3 times", "4 times", "5 times"],
+        answer: 3
+      },
+      {
+        q: "What are the storage elements between each pipeline stage called?",
+        options: ["Cache", "Buffers", "Interstage Buffers", "Registers"],
+        answer: 2
+      },
+      {
+        q: "What do we call the situation where the pipeline is waiting for a stage to complete?",
+        options: ["Pipeline flush", "Clock cycle", "Hazard", "Stall cycle"],
+        answer: 3
+      },
+      {
+        q: "What is a cause of pipeline stalling?",
+        options: ["Bus error", "Interrupt", "Hazard", "Instruction decode"],
+        answer: 2
+      },
+      {
+        q: "How can a data hazard occur?",
+        options: ["Two instructions access memory simultaneously", "One instruction updates a register while another reads it", "Mismatch of control signals", "Overloaded bus"],
+        answer: 1
+      },
+      {
+        q: "What does Operand Forwarding solve?",
+        options: ["Interrupt handling", "Instruction decode", "Data hazard", "Program loading"],
+        answer: 2
+      },
+      {
+        q: "What problem can a branch instruction cause in a pipeline?",
+        options: ["Bus error", "Overflow", "Control hazard", "Data hazard"],
+        answer: 2
+      },
+      {
+        q: "How does a delayed branch work?",
+        options: ["It waits for confirmation before branching", "Moves an instruction to the branch delay slot", "Executes only when a condition is true", "Clears the pipeline"],
+        answer: 1
+      },
+      {
+        q: "What is a superscalar processor?",
+        options: ["One that supports only scalar data", "Executes multiple instructions at once with different units", "Can only execute one instruction at a time", "Has a faster clock"],
+        answer: 1
+      },
+      {
+        q: "Which register connects to the address bus from CPU?",
+        options: ["MDR", "IR", "PC", "MAR"],
+        answer: 3
+      },
+      {
+        q: "Which component connects CPU to the data bus?",
+        options: ["IR", "PC", "MDR", "ALU"],
+        answer: 2
+      },
+      {
+        q: "What happens when a processor tries to write to memory?",
+        options: ["Memory reads from both buses", "Memory writes to CPU", "ALU is triggered", "Interrupt occurs"],
+        answer: 0
+      },
+      {
+        q: "What do we call the small but fast memory between CPU and main memory?",
+        options: ["Flash", "DRAM", "Register", "Cache"],
+        answer: 3
+      },
+      {
+        q: "What is the description of temporal locality?",
+        options: ["Frequently accessed memory is grouped", "Recently executed instruction likely executes again", "Program accesses random data", "Data is fetched from cache only"],
+        answer: 1
+      },
+      {
+        q: "What does an interrupt signal call in the processor?",
+        options: ["Stack pointer", "Control unit", "Interrupt service routine", "DMA controller"],
+        answer: 2
+      },
+      {
+        q: "What problem is associated with data forwarding?",
+        options: ["Interrupt priority", "ALU hazard", "Write-back conflict", "None — it solves data hazard"],
+        answer: 3
+      },
+      {
+        q: "How does branch prediction help pipelining?",
+        options: ["It increases bus size", "It helps reorder ALU steps", "It reduces control hazard", "It optimizes memory usage"],
+        answer: 2
+      },
+      {
+        q: "Which type of hazard occurs when multiple instructions request the same hardware?",
+        options: ["Data hazard", "Structural hazard", "Control hazard", "Cache miss"],
+        answer: 1
+      },
+      {
+        q: "Which technique is used to reduce the delay caused by a branch instruction?",
+        options: ["Instruction Reordering", "Operand Caching", "Shift Register", "Load Balancing"],
+        answer: 0
+      }
+    ];
+
+    const explanations = [
+      "Used to increment the Program Counter (PC) by 4 to fetch the next instruction.",
+      "With 5 stages, ideally the processor can be 5 times faster.",
+      "Interstage buffers hold intermediate results between pipeline stages.",
+      "A stall occurs when one stage must wait for another to complete.",
+      "Pipeline stalls are caused by hazards (data, control, structural).",
+      "Data hazard happens when one instruction needs data from a previous instruction.",
+      "Operand forwarding helps pass data between instructions without waiting.",
+      "Branch instructions cause control hazards by altering flow.",
+      "In delayed branching, a useful instruction is placed after the branch.",
+      "Superscalar processors have multiple execution units to run instructions in parallel.",
+      "The MAR (Memory Address Register) connects to the address bus.",
+      "The MDR (Memory Data Register) interfaces with the data bus.",
+      "Memory reads address and data buses during a write operation.",
+      "Cache is a small fast memory between CPU and main memory.",
+      "Temporal locality means recently accessed instructions/data are likely reused.",
+      "ISR (Interrupt Service Routine) handles interrupt signals.",
+      "Operand forwarding is a solution, not a problem.",
+      "Branch prediction helps reduce pipeline stalls from branches.",
+      "Structural hazard arises when multiple instructions need the same hardware.",
+      "Instruction reordering can hide branch delays by reusing the delay slot."
+    ];
+
+    const quizDiv = document.getElementById("quiz");
+    const summaryDiv = document.getElementById("summary");
+
+    questions.forEach((q, index) => {
+      const questionBox = document.createElement("div");
+      questionBox.classList.add("question-block");
+      questionBox.innerHTML = `
+        <div class="question">${index + 1}. ${q.q}</div>
+        <div class="options">
+          ${q.options.map((opt, i) => `
+            <input type="radio" id="q${index}_${i}" name="q${index}" value="${i}">
+            <label for="q${index}_${i}">${opt}</label>
+          `).join('')}
+        </div>
+      `;
+      quizDiv.appendChild(questionBox);
+    });
+
+    document.getElementById("submitBtn").onclick = () => {
+      let score = 0;
+      let incorrectSummary = "<h2>Quiz Summary</h2>";
+      questions.forEach((q, index) => {
+        const selected = document.querySelector(`input[name='q${index}']:checked`);
+        const userAnswer = selected ? parseInt(selected.value) : null;
+        if (userAnswer === q.answer) {
+          score++;
+        } else {
+          incorrectSummary += `<div class='explanation'><strong>Question ${index + 1}:</strong><br>${q.q}<br><em>Your answer:</em> ${userAnswer !== null ? q.options[userAnswer] : "None"}<br><em>Correct answer:</em> ${q.options[q.answer]}<br><em>Explanation:</em> ${explanations[index]}</div>`;
+        }
+      });
+      quizDiv.style.display = "none";
+      document.getElementById("submitBtn").style.display = "none";
+      summaryDiv.style.display = "block";
+      summaryDiv.innerHTML = `<div><strong>Your Score: ${score} / ${questions.length}</strong></div>` + incorrectSummary;
+      document.getElementById("retryBtn").style.display = "inline-block";
+    };
+
+    document.getElementById("retryBtn").onclick = () => {
+      window.location.reload();
+    };
+  </script>
+</body>
+</html>

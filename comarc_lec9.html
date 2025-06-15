@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lecture Quiz</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #111;
+      color: #fff;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    .quiz-box {
+      background-color: #222;
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+    .question {
+      font-size: 1.2em;
+      margin-bottom: 10px;
+    }
+    .options label {
+      display: block;
+      padding: 10px;
+      background-color: #333;
+      border-radius: 5px;
+      margin-bottom: 5px;
+      cursor: pointer;
+    }
+    .options input[type="radio"] {
+      display: none;
+    }
+    .options input[type="radio"]:checked + label {
+      background-color: #444;
+      border: 2px solid #00ccff;
+    }
+    #submitBtn, #retryBtn {
+      background-color: #00ccff;
+      border: none;
+      padding: 10px 20px;
+      color: #000;
+      font-weight: bold;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #summary {
+      display: none;
+      background-color: #222;
+      padding: 20px;
+      margin-top: 20px;
+      border-radius: 10px;
+    }
+    #summary h2 {
+      color: #00ccff;
+    }
+    .explanation {
+      margin-bottom: 15px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Lecture 9 Interactive Quiz</h1>
+  <div class="quiz-box" id="quiz"></div>
+  <button id="submitBtn">Submit</button>
+  <div id="summary"></div>
+  <button id="retryBtn" style="display:none;">Retry Quiz</button>
+
+  <script>
+    const questions = [
+  {
+    q: "What does main memory hold?",
+    options: ["Operating System Settings", "CPU Registers", "BIOS Instructions", "Execution Programs / Data"],
+    answer: 3
+  },
+  {
+    q: "Word Size",
+    options: ["Cache Size", "Instruction Clock Speed", "Memory Module Size", "Number of bits processed by CPU"],
+    answer: 3
+  },
+  {
+    q: "Multiple Word Size",
+    options: ["Clock Rate / Register Width / Buffer Size", "RAM Frequency / ALU Power / CPU Core Count", "Data Bus Size / Instruction Size / Address Size", "Bus Speed / ROM Type / IO Ports"],
+    answer: 2
+  },
+  {
+    q: "Determine maximum size of the memory",
+    options: ["The Power Supply", "The Addressing Scheme", "The RAM Speed", "The Cache Size"],
+    answer: 1
+  },
+  {
+    q: "Set R/W to 1",
+    options: ["Write Operation", "Interrupt Request", "Fetch Instruction", "Read Operation"],
+    answer: 3
+  },
+  {
+    q: "Set R/W to 0",
+    options: ["Instruction Fetch", "Read Operation", "Write Operation", "Address Decoding"],
+    answer: 2
+  },
+  {
+    q: "RAM",
+    options: ["Real Application Memory", "Register Access Module", "Read-All Memory", "Random-Access Memory"],
+    answer: 3
+  },
+  {
+    q: "Row in RAM",
+    options: ["Control Line", "Word Line", "Data Line", "Address Line"],
+    answer: 1
+  },
+  {
+    q: "Column in RAM",
+    options: ["Bit Line", "Byte Line", "Control Line", "Word Line"],
+    answer: 0
+  },
+  {
+    q: "Connect to the address decoder in RAM",
+    options: ["Control Bus", "Bit Line", "Sense Amplifier", "Word Line"],
+    answer: 3
+  },
+  {
+    q: "Connect to the sense / write circuit in RAM",
+    options: ["Data Bus", "Bit Line", "Instruction Line", "Word Line"],
+    answer: 1
+  },
+  {
+    q: "SRAM",
+    options: ["Scalable RAM", "Synchronous RAM", "Sequential RAM", "Static RAM"],
+    answer: 3
+  },
+  {
+    q: "Latch",
+    options: ["Flip-Flop sequence", "Two inverters cross-connected", "NAND and NOR combo", "Multiplexer circuit"],
+    answer: 1
+  },
+  {
+    q: "State 1 in SRAM",
+    options: ["Bit line b is high / Bit line b' is low", "Bit line b is floating", "Bit line b is low / Bit line b' is high", "Both bit lines are low"],
+    answer: 0
+  },
+  {
+    q: "State 0 in SRAM",
+    options: ["Bit line b' is floating", "Bit line b is high / Bit line b' is low", "Bit line b is off", "Bit line b is low / Bit line b' is high"],
+    answer: 3
+  },
+  {
+    q: "DRAM",
+    options: ["Dynamic RAM", "Digital RAM", "Direct RAM", "Dual RAM"],
+    answer: 0
+  },
+  {
+    q: "RAS",
+    options: ["RAM Access Strobe", "Read Allocation Signal", "Register Assignment State", "Row Address Strobe"],
+    answer: 3
+  },
+  {
+    q: "CAS",
+    options: ["Control Access Set", "Cache Allocation Segment", "Column Address Strobe", "Column Access Selector"],
+    answer: 2
+  },
+  {
+    q: "SDRAM",
+    options: ["Static Digital RAM", "Synchronous Dynamic RAM", "Software-Driven RAM", "Sequential DRAM"],
+    answer: 1
+  },
+  {
+    q: "Track which row to be refreshed next in SDRAM",
+    options: ["Refresh Counter", "Row Register", "Address Indexer", "Data Watcher"],
+    answer: 0
+  },
+  {
+    q: "Time to fetch the first word",
+    options: ["Instruction Delay", "Memory Latency", "Cache Miss", "Data Throughput"],
+    answer: 1
+  },
+  {
+    q: "DDR-RAM",
+    options: ["Double-data-rate SDRAM", "Dynamic Dual RAM", "Dual-direction RAM", "Disk Data RAM"],
+    answer: 0
+  },
+  {
+    q: "Data per clock cycle",
+    options: ["Bandwidth", "Cache Hit Rate", "Signal Strength", "Clock Ratio"],
+    answer: 0
+  },
+  {
+    q: "ROM",
+    options: ["Rapid Output Module", "Read Only Memory", "Run Once Memory", "RAM-Oriented Module"],
+    answer: 1
+  },
+  {
+    q: "Keep memory even the PC turns off",
+    options: ["Static Memory", "Flash Cache", "Non-volatile Memory", "Refreshable Memory"],
+    answer: 2
+  },
+  {
+    q: "PROM",
+    options: ["Permanent ROM", "Processed ROM", "Predictable ROM", "Programmable ROM"],
+    answer: 3
+  },
+  {
+    q: "EPROM",
+    options: ["Electrified PROM", "Extended PROM", "Enhanced ROM", "Erasable Programmable ROM"],
+    answer: 3
+  },
+  {
+    q: "EEPROM",
+    options: ["Electrically Extended PROM", "Electrical EPROM", "External Erasable PROM", "Edge-programmed ROM"],
+    answer: 1
+  },
+  {
+    q: "Flat circular hard surface in disk",
+    options: ["Rotator", "Spinner", "Platter", "Surface"],
+    answer: 2
+  },
+  {
+    q: "Spindle",
+    options: ["Synchronize cache", "Rotate the read head", "Connect all disk platter", "Control disk temperature"],
+    answer: 2
+  },
+  {
+    q: "Attached with arm above each surface in disk",
+    options: ["Transmitter", "Router", "Sensor", "Head"],
+    answer: 3
+  },
+  {
+    q: "Track",
+    options: ["Data index file", "Main circle on hard disk", "Sub-circle of each surface in disk", "Cylinder path"],
+    answer: 2
+  },
+  {
+    q: "Corresponding track on each surface in disk",
+    options: ["Cache Layer", "Sector", "Disk Ring", "Cylinder"],
+    answer: 3
+  },
+  {
+    q: "What do read/write head of disk consist of?",
+    options: ["Optical lens / Beam emitter", "Resistor pair / Coil loop", "Magnetic yoke / Magnetizing coil", "Data pins / Decoder"],
+    answer: 2
+  },
+  {
+    q: "Simple scheme for disk encoding",
+    options: ["Parity Check", "CRC Hash", "Manchester Encoding", "Binary Shifting"],
+    answer: 2
+  }
+];
+
+
+
+    const explanations = [
+      "Used to increment the Program Counter (PC) by 4 to fetch the next instruction.",
+      "With 5 stages, ideally the processor can be 5 times faster.",
+      "Interstage buffers hold intermediate results between pipeline stages.",
+      "A stall occurs when one stage must wait for another to complete.",
+      "Pipeline stalls are caused by hazards (data, control, structural).",
+      "Data hazard happens when one instruction needs data from a previous instruction.",
+      "Operand forwarding helps pass data between instructions without waiting.",
+      "Branch instructions cause control hazards by altering flow.",
+      "In delayed branching, a useful instruction is placed after the branch.",
+      "Superscalar processors have multiple execution units to run instructions in parallel.",
+      "The MAR (Memory Address Register) connects to the address bus.",
+      "The MDR (Memory Data Register) interfaces with the data bus.",
+      "Memory reads address and data buses during a write operation.",
+      "Cache is a small fast memory between CPU and main memory.",
+      "Temporal locality means recently accessed instructions/data are likely reused.",
+      "ISR (Interrupt Service Routine) handles interrupt signals.",
+      "Operand forwarding is a solution, not a problem.",
+      "Branch prediction helps reduce pipeline stalls from branches.",
+      "Structural hazard arises when multiple instructions need the same hardware.",
+      "Instruction reordering can hide branch delays by reusing the delay slot."
+    ];
+
+    const quizDiv = document.getElementById("quiz");
+    const summaryDiv = document.getElementById("summary");
+
+        // Shuffle array utility
+    function shuffleArray(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+    }
+
+    // Shuffle questions and options
+    questions.forEach((q) => {
+    const originalOptions = [...q.options];
+    const correctAnswerText = originalOptions[q.answer];
+
+    const shuffledOptions = shuffleArray([...originalOptions]);
+    q.options = shuffledOptions;
+    q.answer = shuffledOptions.indexOf(correctAnswerText);
+    });
+
+    // Shuffle the questions array itself
+    shuffleArray(questions);
+
+    questions.forEach((q, index) => {
+      const questionBox = document.createElement("div");
+      questionBox.classList.add("question-block");
+      questionBox.innerHTML = `
+        <div class="question">${index + 1}. ${q.q}</div>
+        <div class="options">
+          ${q.options.map((opt, i) => `
+            <input type="radio" id="q${index}_${i}" name="q${index}" value="${i}">
+            <label for="q${index}_${i}">${opt}</label>
+          `).join('')}
+        </div>
+      `;
+      quizDiv.appendChild(questionBox);
+    });
+
+    document.getElementById("submitBtn").onclick = () => {
+      let score = 0;
+      let incorrectSummary = "<h2>Quiz Summary(IGNORE THE EXPLANATION)</h2>";
+      questions.forEach((q, index) => {
+        const selected = document.querySelector(`input[name='q${index}']:checked`);
+        const userAnswer = selected ? parseInt(selected.value) : null;
+        if (userAnswer === q.answer) {
+          score++;
+        } else {
+          incorrectSummary += `<div class='explanation'><strong>Question ${index + 1}:</strong><br>${q.q}<br><em>Your answer:</em> ${userAnswer !== null ? q.options[userAnswer] : "None"}<br><em>Correct answer:</em> ${q.options[q.answer]}<br><em>Explanation:</em> ${explanations[index]}</div>`;
+        }
+      });
+      quizDiv.style.display = "none";
+      document.getElementById("submitBtn").style.display = "none";
+      summaryDiv.style.display = "block";
+      summaryDiv.innerHTML = `<div><strong>Your Score: ${score} / ${questions.length}</strong></div>` + incorrectSummary;
+      document.getElementById("retryBtn").style.display = "inline-block";
+    };
+
+    document.getElementById("retryBtn").onclick = () => {
+      window.location.reload();
+    };
+  </script>
+</body>
+</html>
